@@ -1,5 +1,3 @@
-asect  0x00
-
 # this is borris:
 # Y = (Yo + Vy * (Sx / Vx)) % 32
 
@@ -15,14 +13,68 @@ asect  0x00
 # for i in range(t):
 # 		Yo += Vy
 
-# optional: Yo %= 32 (cut of the top 3 bits essentially) —— example: 64 = 01000000
+# Yo %= 32 (cut of the top 3 bits essentially) —— example: 64 = 01000000
+
+asect 0xf0
+Sx:
+asect 0xf1
+Sy:
+asect 0xf2
+Vx:
+asect 0xf3
+Vy:
+asect 0xf4
+Y:
+
+asect 0x04
+
+borris:
+	ldi r0, Sx		# Load the address of SxIO
+	do      		# Begin the keyboard read loop
+		ld r0,r1	# Load r1 from data memory 
+       tst r1		# Test if r1 is 0
+	until gt
+	
+	ldi r0, 0x00	# Load the address for Sx
+	st r0,r1		# Store Sx at 0x00
+	
+	
+	ldi r0, Sy		# Load the address of SyIO
+	do      		# Begin the keyboard read loop
+		ld r0,r1	# Load r1 from data memory 
+       tst r1		# Test if r1 is 0
+	until gt
+	
+	ldi r0, 0x01	# Load the address for Sy
+	st r0,r1		# Store Sy at 0x01
+	
+	
+	ldi r0, Vx		# Load the address of VxIO
+	do      		# Begin the keyboard read loop
+		ld r0,r1	# Load r1 from data memory 
+       tst r1		# Test if r1 is 0
+	until gt
+	
+	ldi r0, 0x02	# Load the address for Vx
+	st r0,r1		# Store Vx at 0x02
+	
+	
+	ldi r0, Vy		# Load the address of VyIO
+	do      		# Begin the keyboard read loop
+		ld r0,r1	# Load r1 from data memory 
+       tst r1		# Test if r1 is 0
+	until gt
+	
+	ldi r0, 0x03	# Load the address for Vy
+	st r0,r1		# Store Vy at 0x03
+	
 
 	ldi r2, 0		# t
 	
-	ldi r0, Sx
+	ldi r0, 0x00	# Sx
 	ld r0, r0
 	
-	ldi r1, Vx
+	ldi r1, 0x02	# Vx
 	ld r1, r1
 	
 	# (Sx / Vx) = t
@@ -36,10 +88,10 @@ asect  0x00
 	wend
 	inc r2
 	
-	ldi r0, Sy
+	ldi r0, 0x01	# Sy
 	ld r0, r0
 	
-	ldi r1, Vy
+	ldi r1, 0x03  # Vy
 	ld r1, r1
 	
 	
@@ -53,29 +105,24 @@ asect  0x00
 	
 	
 	# r0 %= 32
-	shla r0
-	shla r0
-	shla r0
-	shra r0
-	shra r0
-	shra r0
+	shl r0
+	shl r0
+	shl r0
+	shr r0
+	shr r0
+	shr r0
 	
-	ldi r1, Y
+	ldi r1, 0xf4	# New Y
 	st r1, r0
 	
+	br borris          # Brings execution back to the beggining
 
-	ldi r0, Y
-	halt          # Brings execution to a halt
+#INPUTS>
+#Vx:      dc 1   # replace these with your choice
+#Vy:      dc 1   # of unsigned numbers for testing
+#Sx:      dc 10
+#Sy:      dc 31
+#ENDINPUTS>
 
-
-INPUTS>
-Vx:      dc 1   # replace these with your choice
-Vy:      dc 1   # of unsigned numbers for testing
-Sx:      dc 10
-Sy:      dc 31
-ENDINPUTS>
-
-Y: ds 1    # one byte reserved for the remainder
+# Y: ds 1    # one byte reserved for the remainder
 end
-
-

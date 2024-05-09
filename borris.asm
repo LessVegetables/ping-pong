@@ -38,10 +38,6 @@ Y:
 asect 0x04
 
 borris:
-	ldi r0, SX
-	ld r0, r0
-	ldi r1, Sx
-	st r1, r0
 	ldi r0, Sx		# Load the address of SxIO
 	do      		# Begin the keyboard read loop
 		ld r0,r1	# Load r1 from data memory 
@@ -51,10 +47,7 @@ borris:
 	ldi r0, 0x00	# Load the address for Sx
 	st r0,r1		# Store Sx at 0x00
 	
-	ldi r0, SY
-	ld r0, r0
-	ldi r1, Sy
-	st r1, r0
+	
 	ldi r0, Sy		# Load the address of SyIO
 	do      		# Begin the keyboard read loop
 		ld r0,r1	# Load r1 from data memory 
@@ -64,10 +57,7 @@ borris:
 	ldi r0, 0x01	# Load the address for Sy
 	st r0,r1		# Store Sy at 0x01
 	
-	ldi r0, VX
-	ld r0, r0
-	ldi r1, Vx
-	st r1, r0
+
 	ldi r0, Vx		# Load the address of VxIO
 	do      		# Begin the keyboard read loop
 		ld r0,r1	# Load r1 from data memory 
@@ -77,10 +67,7 @@ borris:
 	ldi r0, 0x02	# Load the address for Vx
 	st r0,r1		# Store Vx at 0x02
 	
-	ldi r0, VY
-	ld r0, r0
-	ldi r1, Vy
-	st r1, r0
+
 	ldi r0, Vy		# Load the address of VyIO
 	do      		# Begin the keyboard read loop
 		ld r0,r1	# Load r1 from data memory 
@@ -163,21 +150,71 @@ borris:
 	
 	# Begin: Ynew %= 32
 	# Ynew loaded into r0
-	ldi r1, 0
-	ldi r2, 32
-	while
-		cmp r0, r1
-	stays mi # negative
-		add r2, r0
-	wend
+	ldi r1, 0xe0	# sign of Ynew
+	if
+		tst r0
+	is mi
+		ldi r2, 1
+		neg r0
+	else
+		ldi r2, 0
+	fi
+	st r1, r2	# storing sign info in 0xe0
+	ld r1, r1
 	
-	ldi r1, 31
-	ldi r2, -32
-	while
-		cmp r1, r0
-	stays mi # while 31 - y stays negative
+
+	shla r0
+	shla r0
+	shla r0
+	# проверка на "6й бит" (спросить у данила)
+	ldi r2, 0xe1
+	if
+	is cs
+		ldi r3, 1
+	else
+		ldi r3, 0
+	fi
+	st r2, r3
+	ld r2, r2
+	
+	tst r0	# set C to 0 essentially
+	shr r0
+	shr r0
+	shr r0
+	
+	if
+		tst r1		# sign of Ynew
+	is nz
+		neg r0
+	fi
+	
+	
+	
+	# sign	6bit
+	# 0xe0	0xe1
+	# r1	r2
+	# 0		0		-> r0
+	# 0		1 		-> 32 - r0
+	# 1		0		-> r0
+	# 1		1		-> 32 - r0
+	ldi r1, 0xe0
+	ld r1, r1
+	#xor r2, r1
+	
+	if
+		tst r2
+	is	nz
+		ldi r2, -32
 		add r2, r0
-	wend
+		neg r0
+	fi
+	
+	if
+		tst r0
+	is	mi
+		neg r0
+	fi
+		
 	# End: Ynew %= 32
 
 	ldi r1, 0xf4	# New Y
@@ -185,12 +222,4 @@ borris:
 	
 	br borris          # Brings execution back to the beggining
 
-INPUTS>
-VX:      dc 1   # replace these with your choice
-VY:      dc -2   # of unsigned numbers for testing
-SX:      dc 20
-SY:      dc 2
-#ENDINPUTS>
-
-# Y: ds 1    # one byte reserved for the remainder
 end

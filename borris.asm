@@ -33,22 +33,22 @@ borris:
        tst r1		# Test if r1 is 0
 	until nz		# if Flag is 1 — the programm starts
 	
-	ldi r0, SX
+	ldi r0, Sx
 	ld r0, r0
 	ldi r1, 0x00
 	st r1, r0
 	
-	ldi r0, SY
+	ldi r0, Sy
 	ld r0, r0
 	ldi r1, 0x01
 	st r1, r0
 	
-	ldi r0, VX
+	ldi r0, Vx
 	ld r0, r0
 	ldi r1, 0x02
 	st r1, r0
 	
-	ldi r0, VY
+	ldi r0, Vy
 	ld r0, r0
 	# Vy: 0xe0 == 0 => going up		(Vy >= 0)
 	#   : 0xe0 == 1 => going down 	(Vy < 0)
@@ -105,8 +105,7 @@ borris:
 		shl r1
 	wend
 	shr r1
-	
-	
+
 	# Stage 2 and 3
 	while
 		cmp r1, r2			# bnew - b	
@@ -189,7 +188,9 @@ borris:
 		
 		tst r0
 		shr r0
+		tst r0
 		shr r0
+		tst r0
 		shr r0
 		
 		xor r3, r2		# ideally: sign(Y) is loaded in r2, and 6th bit in r3 already
@@ -201,7 +202,6 @@ borris:
 			# remember, r1 already contains 31 (see line 190)
 			neg r0
 			add r1, r0
-			neg r0
 		fi
 	fi
 # End: % 32
@@ -211,12 +211,12 @@ borris:
 	
 	br borris          # Brings execution back to the beggining
 
-INPUTS>
-SX:      dc 20 	# dX (distance from ball to wall)
-SY:      dc 2		# Y coord of ball
-VX:      dc 1		# X vel of ball (MUST be positive)
-VY:      dc -2		# Y vel of ball
-ENDINPUTS>
+#INPUTS>
+#SX:      dc 10 	# dX (distance from ball to wall)
+#SY:      dc 15		# Y coord of ball
+#VX:      dc 2		# X vel of ball (MUST be positive)
+#VY:      dc 12		# Y vel of ball
+#ENDINPUTS>
 
 # Y: ds 1    # one byte reserved for the remainder
 end
